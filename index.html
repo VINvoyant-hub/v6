@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>VINvoyant — Vehicle Oracle</title>
+  <link rel="stylesheet" href="css/oracle-engine.css">
   <style>
     :root{
       --bg:#05060a;
@@ -194,7 +195,7 @@
       text-transform: uppercase;
       outline:none;
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
-      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      transition: transform .6s cubic-bezier(0.2, 0.8, 0.2, 1), border-color .6s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow .6s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
     .vin-input:focus{
       border-color: rgba(0,212,255,.55);
@@ -213,7 +214,7 @@
       text-transform: uppercase;
       cursor:pointer;
       box-shadow: 0 18px 50px rgba(0,212,255,.12);
-      transition: transform .16s ease, filter .16s ease;
+      transition: transform .5s cubic-bezier(0.2, 0.8, 0.2, 1), filter .5s ease, box-shadow .5s ease;
       white-space:nowrap;
     }
     .oracle-btn:hover{transform: translateY(-2px); filter: brightness(1.08)}
@@ -258,7 +259,7 @@
       opacity: .9;
       filter: drop-shadow(0 12px 28px rgba(0,0,0,.65));
       transform-origin: 50% 50%;
-      transition: transform .25s ease, filter .25s ease, opacity .25s ease;
+      transition: transform .8s cubic-bezier(0.2, 0.9, 0.2, 1), filter .8s ease, opacity .8s ease;
     }
 
     .silhouette .glow{
@@ -387,34 +388,44 @@
 </head>
 
 <body>
+  <!-- ORACLE ENGINE: ATMOSPHERE LAYERS -->
+  <div class="vx-atmo" aria-hidden="true">
+    <div class="vx-void"></div>
+    <div class="vx-grid"></div>
+    <div class="vx-scanlines"></div>
+    <div class="vx-vignette"></div>
+    <div class="vx-cursorHalo"></div>
+    <div class="vx-noise"></div>
+  </div>
+
   <div class="oracle-stage">
-    <div class="field"></div>
-    <div class="grid"></div>
-    <div class="scanline"></div>
+    <!-- <div class="field"></div> (Replaced by vx-atmo) -->
+    <!-- <div class="grid"></div> -->
+    <!-- <div class="scanline"></div> -->
 
     <main class="oracle-card" id="oracleCard">
       <section class="oracle-inner">
 
         <div>
-          <h1 class="title">Enter your VIN to awaken your vehicle profile.</h1>
+          <h1 class="title">Connect Your Vehicle.</h1>
           <p class="subtitle">
-            VINvoyant doesn’t guess. It listens. It verifies. Then it guides you like it owns the runway.
+            Bridge your vehicle's data with our intelligence network. Verify your VIN to begin the integration process.
           </p>
 
           <div class="ritual">
             <div class="ritual-content">
               <div class="vin-label">
-                <span>Vehicle Oracle</span>
-                <span class="status-pill" id="statusPill">Awaiting VIN</span>
+                <span>Vehicle Identification</span>
+                <span class="status-pill" id="statusPill">Ready to Connect</span>
               </div>
 
               <div class="vin-row">
-                <input id="vinInput" class="vin-input" maxlength="17" placeholder="17-CHAR VIN" autocomplete="off" />
-                <button class="oracle-btn" id="vinBtn">Awaken</button>
+                <input id="vinInput" class="vin-input" maxlength="17" placeholder="ENTER VIN" autocomplete="off" />
+                <button class="oracle-btn" id="vinBtn">Connect</button>
               </div>
 
               <p class="bossy-hint" id="bossyHint">
-                Type the VIN. No extra spaces. No hesitation. When it validates, the interface will deepen.
+                Please enter your 17-character VIN. We'll handle the validation and sync up with the manufacturer's data.
               </p>
             </div>
           </div>
@@ -423,22 +434,25 @@
         <aside class="oracle-right">
           <div class="silhouette" id="silhouetteBox">
             <div class="glow"></div>
-            <!-- Simple blueprint car outline (stylized) -->
-            <svg viewBox="0 0 900 260" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="vehicle blueprint">
-              <path d="M150 170c20-44 38-70 65-82 28-12 118-18 235-18s207 6 235 18c27 12 45 38 65 82"
-                    stroke="rgba(0,212,255,.8)" stroke-width="4" stroke-linecap="round"/>
-              <path d="M140 170h620c20 0 40 16 50 42l18 40H72l18-40c10-26 30-42 50-42Z"
-                    stroke="rgba(124,92,255,.75)" stroke-width="4" stroke-linejoin="round"/>
-              <circle cx="240" cy="210" r="36" stroke="rgba(234,240,255,.75)" stroke-width="4"/>
-              <circle cx="660" cy="210" r="36" stroke="rgba(234,240,255,.75)" stroke-width="4"/>
-              <path d="M330 96h240" stroke="rgba(234,240,255,.35)" stroke-width="4" stroke-linecap="round"/>
-              <path d="M295 140h310" stroke="rgba(234,240,255,.25)" stroke-width="4" stroke-linecap="round"/>
+            <!-- Refined luxury sedan silhouette -->
+            <svg viewBox="0 0 900 280" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="vehicle silhouette">
+              <!-- Body -->
+              <path d="M50 180 L70 155 C90 150 160 145 180 145 L240 95 C260 80 300 75 450 75 C600 75 640 80 660 95 L720 145 C740 145 810 150 830 155 L850 180 L850 220 L780 220 A 40 40 0 0 1 700 220 L200 220 A 40 40 0 0 1 120 220 L50 220 Z"
+                    stroke="rgba(124,92,255,.9)" stroke-width="3" stroke-linejoin="round" fill="rgba(20,24,35,.4)"/>
+              <!-- Windows -->
+              <path d="M255 105 L445 85 L445 135 L195 135 Z" stroke="rgba(0,212,255,.6)" stroke-width="2" />
+              <path d="M455 85 L625 105 L685 135 L455 135 Z" stroke="rgba(0,212,255,.6)" stroke-width="2" />
+              <!-- Wheels -->
+              <circle cx="160" cy="220" r="32" stroke="rgba(234,240,255,.5)" stroke-width="3"/>
+              <circle cx="740" cy="220" r="32" stroke="rgba(234,240,255,.5)" stroke-width="3"/>
+              <!-- Ground line -->
+              <path d="M20 252h860" stroke="rgba(234,240,255,.15)" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
 
           <div class="data-flicker" id="dataFlicker">
-            <div class="datum"><span class="key">Year</span><span class="val" id="valYear">—</span></div>
-            <div class="datum"><span class="key">Engine</span><span class="val" id="valEngine">—</span></div>
+            <div class="datum"><span class="key">Model Year</span><span class="val" id="valYear">—</span></div>
+            <div class="datum"><span class="key">Powertrain</span><span class="val" id="valEngine">—</span></div>
             <div class="datum"><span class="key">Drivetrain</span><span class="val" id="valDrive">—</span></div>
           </div>
         </aside>
@@ -449,14 +463,14 @@
     <div class="guide" id="guide">
       <div class="guide-card">
         <div class="guide-inner">
-          <h3 class="guide-title" id="guideTitle">VIN Required</h3>
+          <h3 class="guide-title" id="guideTitle">VIN Verification</h3>
           <p class="guide-text" id="guideText">
-            Enter the full 17-character VIN. Letters I, O, Q are not used in VINs. This is a precision ritual, not a guess.
+            Please provide your 17-character Vehicle Identification Number. Standard VINs don't use the letters I, O, or Q. We'll verify it instantly.
           </p>
         </div>
         <div class="guide-actions">
-          <button class="btn-ghost" id="guideClose">Understood</button>
-          <button class="oracle-btn" id="guideFocus">Take me to the VIN</button>
+          <button class="btn-ghost" id="guideClose">Got it</button>
+          <button class="oracle-btn" id="guideFocus">Enter VIN</button>
         </div>
       </div>
     </div>
@@ -530,7 +544,7 @@
     function animateDataLoad(v){
       const decoded = fakeDecode(v);
 
-      setStatus('loading', 'Decoding…');
+      setStatus('loading', 'Connecting…');
       valYear.textContent = '…';
       valEngine.textContent = '…';
       valDrive.textContent = '…';
@@ -541,14 +555,26 @@
       setTimeout(()=>{ valDrive.textContent = decoded.drive; }, 1050);
 
       setTimeout(()=>{
-        setStatus('ok', 'Verified');
+        setStatus('ok', 'Connected');
         deepen();
         // Here is where you transition to Section 2 later.
         // For now we “command” the next step with a guide overlay.
         setTimeout(()=>{
-          document.getElementById('guideTitle').textContent = 'Vehicle Profile Awakened';
+          document.getElementById('guideTitle').textContent = 'Vehicle Verified';
           document.getElementById('guideText').textContent =
-            'Profile loaded. Next: tell VINvoyant what the vehicle is doing. You will be guided step-by-step.';
+            'Connection established. Welcome to Vinvoyant.';
+          
+          const btn = document.getElementById('guideFocus');
+          btn.textContent = "Enter Dashboard";
+          
+          // Remove old listeners to avoid conflict (simple clone hack)
+          const newBtn = btn.cloneNode(true);
+          btn.parentNode.replaceChild(newBtn, btn);
+          
+          newBtn.addEventListener('click', ()=>{
+             window.location.href = 'sections/dashboard.html';
+          });
+          
           showGuide();
         }, 650);
       }, 1300);
@@ -559,7 +585,7 @@
       vinInput.value = vinInput.value.toUpperCase().replace(/\s+/g,'');
       const v = vinInput.value;
       if(v.length === 0){
-        setStatus('', 'Awaiting VIN');
+        setStatus('', 'Enter VIN');
         valYear.textContent = '—';
         valEngine.textContent = '—';
         valDrive.textContent = '—';
@@ -570,9 +596,9 @@
         return;
       }
       if(looksLikeVin(v)){
-        setStatus('ok', 'Ready');
+        setStatus('ok', 'Ready to Connect');
       } else {
-        setStatus('bad', 'Invalid');
+        setStatus('bad', 'Check VIN');
       }
     });
 
@@ -600,7 +626,8 @@
     });
 
     // Initial bossy instruction
-    setTimeout(()=>showGuide(), 650);
+    // setTimeout(()=>showGuide(), 650);
   </script>
+  <script src="js/oracle-engine.js"></script>
 </body>
 </html>

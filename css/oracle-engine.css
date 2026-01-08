@@ -1,0 +1,193 @@
+  :root{
+    --vx-bg0:#05060a; /* Matched to existing --bg */
+    --vx-bg1:#0B1220;
+    --vx-ink:#EAF0FF;
+    --vx-dim:rgba(234,240,255,.72);
+    --vx-faint:rgba(234,240,255,.45);
+    --vx-edge:rgba(234,240,255,.12);
+    --vx-edge2:rgba(234,240,255,.08);
+    --vx-accent:#8BF9D2;      /* mint */
+    --vx-accent2:#B49BFF;     /* violet */
+    --vx-warn:#FFCE73;
+    --vx-danger:#FF6B8A;
+
+    --vx-radius:18px;
+    --vx-shadow: 0 18px 60px rgba(0,0,0,.55);
+    --vx-shadow2: 0 10px 30px rgba(0,0,0,.42);
+
+    --vx-slow: 1200ms;
+    --vx-med: 700ms;
+    --vx-fast: 320ms;
+
+    --vx-ease: cubic-bezier(.2,.9,.2,1);
+  }
+
+  /* --- ATMOSPHERE LAYERS --- */
+  .vx-atmo{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+  }
+
+  .vx-void{
+    position:absolute; inset:-20%;
+    background:
+      radial-gradient(1200px 900px at 15% 15%, rgba(180,155,255,.16), transparent 55%),
+      radial-gradient(900px 700px at 75% 35%, rgba(139,249,210,.12), transparent 55%),
+      radial-gradient(1200px 900px at 45% 85%, rgba(180,155,255,.10), transparent 60%),
+      linear-gradient(180deg, var(--vx-bg0), var(--vx-bg1));
+    filter:saturate(1.05) contrast(1.05);
+    animation:vxVoidBreath 10s var(--vx-ease) infinite alternate;
+    transform:translate3d(0,0,0);
+  }
+
+  @keyframes vxVoidBreath{
+    0%{ transform:scale(1) translateY(0); filter:saturate(1.02) contrast(1.04); }
+    100%{ transform:scale(1.02) translateY(-1.2%); filter:saturate(1.08) contrast(1.08); }
+  }
+
+  .vx-grid{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(to right, var(--vx-edge2) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--vx-edge2) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity:.25;
+    mask-image: radial-gradient(closest-side at 50% 40%, rgba(0,0,0,.95), transparent 70%);
+    animation:vxGridDrift 16s linear infinite;
+  }
+
+  @keyframes vxGridDrift{
+    from{ background-position:0 0, 0 0; }
+    to{ background-position:64px 64px, 64px 64px; }
+  }
+
+  .vx-scanlines{
+    position:absolute; inset:0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.045) 0px,
+      rgba(255,255,255,.045) 1px,
+      transparent 2px,
+      transparent 6px
+    );
+    opacity:.18;
+    animation:vxScan 5.8s linear infinite;
+  }
+
+  @keyframes vxScan{
+    from{ transform:translateY(-10%); }
+    to{ transform:translateY(10%); }
+  }
+
+  .vx-vignette{
+    position:absolute; inset:-5%;
+    background: radial-gradient(closest-side at 50% 35%, transparent 45%, rgba(0,0,0,.65) 100%);
+    opacity:.85;
+  }
+
+  .vx-noise{
+    position:absolute; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+    opacity:.05;
+  }
+
+  .vx-cursorHalo{
+    position:absolute;
+    width:520px; height:520px;
+    border-radius:50%;
+    background: radial-gradient(circle at center,
+      rgba(139,249,210,.10),
+      rgba(180,155,255,.06) 35%,
+      transparent 70%
+    );
+    transform:translate(-9999px,-9999px);
+    transition: transform 80ms linear;
+    filter: blur(2px);
+    opacity:.85;
+  }
+
+  /* --- ORACLE “MACHINE” POLISH --- */
+  .vx-cardlike,
+  .card, .panel, .section, .box, .container, .wrap, .content,
+  form, .form, .intake, .module {
+    /* Use existing logic but enforce glassiness if needed */
+    backdrop-filter: blur(8px);
+  }
+
+  /* Inputs feel like instrumentation */
+  input, select, textarea {
+    transition: border var(--vx-fast) var(--vx-ease), box-shadow var(--vx-fast) var(--vx-ease), transform var(--vx-fast) var(--vx-ease) !important;
+  }
+
+  input:focus, select:focus, textarea:focus{
+    border-color: rgba(139,249,210,.40) !important;
+    box-shadow: 0 0 0 4px rgba(139,249,210,.10), 0 0 0 1px rgba(139,249,210,.20) inset !important;
+    transform: translateY(-1px) !important;
+  }
+
+  /* Buttons become “commands” */
+  button, .btn, a.button, .cta {
+    transition: transform var(--vx-fast) var(--vx-ease), filter var(--vx-fast) var(--vx-ease), box-shadow var(--vx-fast) var(--vx-ease) !important;
+  }
+
+  button:hover, .btn:hover, a.button:hover, .cta:hover{
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+    box-shadow: 0 16px 45px rgba(0,0,0,.52);
+  }
+
+  button:active, .btn:active, a.button:active, .cta:active{
+    transform: translateY(0px) scale(.99);
+  }
+
+  /* “Oracle pulse” for primary CTA */
+  .vx-primary{
+    position:relative;
+    isolation:isolate;
+  }
+  .vx-primary::after{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius: inherit;
+    background: radial-gradient(closest-side at 50% 50%, rgba(139,249,210,.22), transparent 62%);
+    z-index:-1;
+    opacity:.0;
+    animation: vxPulse 2.6s var(--vx-ease) infinite;
+  }
+
+  @keyframes vxPulse{
+    0%{ opacity:.0; transform:scale(.98); }
+    35%{ opacity:.65; transform:scale(1.02); }
+    100%{ opacity:.0; transform:scale(1.06); }
+  }
+
+  /* Section entrance */
+  .vx-reveal{
+    opacity:0;
+    transform: translateY(18px) scale(.985);
+    filter: blur(3px);
+    transition:
+      opacity var(--vx-med) var(--vx-ease),
+      transform var(--vx-med) var(--vx-ease),
+      filter var(--vx-med) var(--vx-ease);
+    will-change: opacity, transform, filter;
+  }
+
+  .vx-reveal.vx-on{
+    opacity:1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce){
+    .vx-void, .vx-grid, .vx-scanlines { animation:none !important; }
+    .vx-primary::after{ animation:none !important; }
+    .vx-reveal{ opacity:1; transform:none; filter:none; }
+    .vx-cursorHalo{ display:none; }
+  }
