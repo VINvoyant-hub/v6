@@ -1,1 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VINvoyant — Vehicle Oracle</title>
+  <style>
+    :root{
+      --bg:#05060a;
+      --ink:#eaf0ff;
+      --muted:rgba(234,240,255,.72);
+      --glass:rgba(20,24,35,.55);
+      --glass2:rgba(20,24,35,.75);
+      --stroke:rgba(234,240,255,.16);
+      --accent:#7c5cff;
+      --accent2:#00d4ff;
+      --ok:#24ff7a;
+      --bad:#ff2e6a;
+      --shadow: 0 30px 80px rgba(0,0,0,.55);
+      --radius: 22px;
+    }
 
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", Helvetica, sans-serif;
+      background: radial-gradient(1200px 700px at 50% 20%, rgba(124,92,255,.22), transparent 60%),
+                  radial-gradient(900px 500px at 80% 70%, rgba(0,212,255,.14), transparent 60%),
+                  radial-gradient(900px 600px at 20% 80%, rgba(36,255,122,.09), transparent 60%),
+                  var(--bg);
+      color:var(--ink);
+      overflow-x:hidden;
+    }
+
+    /* Full-screen “ritual” */
+    .oracle-stage{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:32px 18px;
+      position:relative;
+    }
+
+    /* Ambient animated field */
+    .field{
+      position:absolute; inset:-40px;
+      background:
+        radial-gradient(500px 280px at 50% 40%, rgba(124,92,255,.22), transparent 60%),
+        conic-gradient(from 180deg at 50% 50%, rgba(0,212,255,.16), rgba(124,92,255,.16), rgba(0,0,0,0) 70%),
+        radial-gradient(900px 700px at 50% 65%, rgba(0,0,0,.6), rgba(0,0,0,.92));
+      filter: blur(0px) saturate(1.1);
+      animation: fieldPulse 7s ease-in-out infinite;
+      opacity:.9;
+      pointer-events:none;
+    }
+    @keyframes fieldPulse{
+      0%,100%{transform:scale(1) rotate(0deg); filter:saturate(1.05)}
+      50%{transform:scale(1.04) rotate(1deg); filter:saturate(1.35)}
+    }
+
+    /* “Blueprint” grid + scanline */
+    .grid{
+      position:absolute; inset:0;
+      background:
+        linear-gradient(to right, rgba(234,240,255,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(234,240,255,.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(circle at 50% 40%, black 0%, transparent 66%);
+      opacity:.65;
+      pointer-events:none;
+    }
+    .scanline{
+      position:absolute; left:-10%; right:-10%;
+      height:2px;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,.7), transparent);
+      top:12%;
+      animation: scan 2.2s ease-in-out infinite;
+      opacity:.8;
+      pointer-events:none;
+    }
+    @keyframes scan{
+      0%{transform:translateY(-40px); opacity:.2}
+      40%{opacity:.9}
+      100%{transform:translateY(520px); opacity:.2}
+    }
+
+    /* Main glass slab */
+    .oracle-card{
+      width:min(980px, 100%);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(20,24,35,.65), rgba(20,24,35,.35));
+      border:1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .oracle-card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(700px 280px at 30% 10%, rgba(124,92,255,.28), transparent 60%),
+                  radial-gradient(700px 280px at 70% 90%, rgba(0,212,255,.18), transparent 60%);
+      opacity:.9;
+      pointer-events:none;
+    }
+
+    .oracle-inner{
+      position:relative;
+      padding: 42px 28px 32px;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 22px;
+    }
+
+    @media (max-width: 860px){
+      .oracle-inner{grid-template-columns:1fr; padding:32px 18px}
+    }
+
+    .title{
+      margin:0 0 10px;
+      font-size: clamp(28px, 3vw, 44px);
+      letter-spacing:.2px;
+      line-height:1.05;
+    }
+    .subtitle{
+      margin:0 0 18px;
+      color: var(--muted);
+      font-size: clamp(14px, 1.2vw, 16px);
+      max-width: 55ch;
+    }
+
+    .ritual{
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(0,0,0,.28);
+      border:1px solid rgba(234,240,255,.10);
+      position:relative;
+      overflow:hidden;
+    }
+
+    .ritual::after{
+      content:"";
+      position:absolute; inset:-40px;
+      background: conic-gradient(from 90deg at 50% 50%, rgba(124,92,255,.18), rgba(0,212,255,.12), rgba(36,255,122,.10), rgba(124,92,255,.18));
+      filter: blur(18px);
+      opacity:.55;
+      animation: swirl 8.2s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes swirl{
+      0%,100%{transform: rotate(0deg) scale(1)}
+      50%{transform: rotate(16deg) scale(1.06)}
+    }
+
+    .ritual-content{position:relative}
+
+    .vin-label{
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:10px;
+      color: rgba(234,240,255,.88);
+      font-weight: 700;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    .status-pill{
+      font-weight:800;
+      padding:6px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(234,240,255,.16);
+      background: rgba(0,0,0,.35);
+      color: rgba(234,240,255,.78);
+      user-select:none;
+      transform: translateZ(0);
+    }
+    .status-pill.ok{border-color: rgba(36,255,122,.35); color: rgba(36,255,122,.9)}
+    .status-pill.bad{border-color: rgba(255,46,106,.35); color: rgba(255,46,106,.92)}
+    .status-pill.loading{border-color: rgba(0,212,255,.35); color: rgba(0,212,255,.92)}
+
+    .vin-row{
+      display:flex; gap:12px;
+      align-items:center;
+    }
+    .vin-input{
+      flex:1;
+      padding: 16px 16px;
+      border-radius: 14px;
+      border:1px solid rgba(234,240,255,.18);
+      background: rgba(0,0,0,.45);
+      color: var(--ink);
+      font-size: 16px;
+      letter-spacing:.14em;
+      text-transform: uppercase;
+      outline:none;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.2);
+      transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+    }
+    .vin-input:focus{
+      border-color: rgba(0,212,255,.55);
+      box-shadow: 0 0 0 4px rgba(0,212,255,.12), inset 0 0 0 1px rgba(0,0,0,.2);
+      transform: translateY(-1px);
+    }
+
+    .oracle-btn{
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(234,240,255,.16);
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(0,212,255,.72));
+      color: #05060a;
+      font-weight: 900;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+      cursor:pointer;
+      box-shadow: 0 18px 50px rgba(0,212,255,.12);
+      transition: transform .16s ease, filter .16s ease;
+      white-space:nowrap;
+    }
+    .oracle-btn:hover{transform: translateY(-2px); filter: brightness(1.08)}
+    .oracle-btn:active{transform: translateY(0px); filter: brightness(.98)}
+
+    .bossy-hint{
+      margin: 12px 0 0;
+      color: rgba(234,240,255,.72);
+      font-size: 13px;
+      line-height:1.4;
+    }
+
+    /* Right panel “vehicle silhouette + data flicker” */
+    .oracle-right{
+      border-radius: 18px;
+      background: rgba(0,0,0,.28);
+      border:1px solid rgba(234,240,255,.10);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+      min-height: 280px;
+    }
+
+    .silhouette{
+      width:100%;
+      height: 170px;
+      border-radius: 16px;
+      border:1px dashed rgba(234,240,255,.16);
+      background:
+        radial-gradient(180px 90px at 50% 55%, rgba(0,212,255,.10), transparent 60%),
+        radial-gradient(180px 90px at 50% 55%, rgba(124,92,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+      display:grid;
+      place-items:center;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .silhouette svg{
+      width: 84%;
+      max-width: 380px;
+      opacity: .9;
+      filter: drop-shadow(0 12px 28px rgba(0,0,0,.65));
+      transform-origin: 50% 50%;
+      transition: transform .25s ease, filter .25s ease, opacity .25s ease;
+    }
+
+    .silhouette .glow{
+      position:absolute; inset:-30px;
+      background: radial-gradient(220px 120px at 50% 60%, rgba(0,212,255,.18), transparent 62%),
+                  radial-gradient(260px 140px at 50% 55%, rgba(124,92,255,.18), transparent 65%);
+      filter: blur(16px);
+      opacity:.55;
+      animation: breathe 3.6s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes breathe{
+      0%,100%{transform:scale(1); opacity:.45}
+      50%{transform:scale(1.06); opacity:.7}
+    }
+
+    .data-flicker{
+      margin-top: 14px;
+      display:grid;
+      gap:10px;
+    }
+    .datum{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border:1px solid rgba(234,240,255,.10);
+      background: rgba(0,0,0,.25);
+      font-size: 13px;
+      color: rgba(234,240,255,.82);
+      position:relative;
+      overflow:hidden;
+    }
+    .datum::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,.18), transparent);
+      transform: translateX(-120%);
+      animation: shimmer 2.2s ease-in-out infinite;
+      opacity:.65;
+      pointer-events:none;
+    }
+    @keyframes shimmer{
+      0%{transform:translateX(-120%)}
+      55%{transform:translateX(120%)}
+      100%{transform:translateX(120%)}
+    }
+    .key{opacity:.72}
+    .val{font-weight:800; letter-spacing:.04em}
+
+    /* Section “deepening” animation */
+    .oracle-card.deepen{
+      animation: deepen 900ms cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    @keyframes deepen{
+      0%{transform: scale(1)}
+      40%{transform: scale(1.02)}
+      100%{transform: scale(1)}
+    }
+
+    /* Big bossy guided overlay */
+    .guide{
+      position: fixed;
+      inset:0;
+      background: rgba(0,0,0,.65);
+      backdrop-filter: blur(10px);
+      display:none;
+      place-items:center;
+      z-index: 50;
+      padding: 18px;
+    }
+    .guide.show{display:grid}
+    .guide-card{
+      width: min(720px, 100%);
+      border-radius: 22px;
+      border:1px solid rgba(234,240,255,.16);
+      background: linear-gradient(180deg, rgba(20,24,35,.92), rgba(10,12,18,.92));
+      box-shadow: 0 40px 120px rgba(0,0,0,.7);
+      overflow:hidden;
+      position:relative;
+    }
+    .guide-card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(500px 260px at 20% 20%, rgba(124,92,255,.35), transparent 60%),
+                  radial-gradient(500px 260px at 80% 80%, rgba(0,212,255,.22), transparent 60%);
+      opacity:.8;
+      pointer-events:none;
+    }
+    .guide-inner{
+      position:relative;
+      padding: 22px 22px 18px;
+    }
+    .guide-title{
+      margin:0 0 6px;
+      font-size: 22px;
+      letter-spacing:.2px;
+    }
+    .guide-text{
+      margin:0 0 14px;
+      color: rgba(234,240,255,.78);
+      line-height:1.5;
+      font-size: 14px;
+    }
+    .guide-actions{
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      padding: 0 22px 20px;
+      position:relative;
+    }
+    .btn-ghost{
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(234,240,255,.16);
+      background: rgba(0,0,0,.25);
+      color: rgba(234,240,255,.9);
+      font-weight: 900;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+      cursor:pointer;
+    }
+    .btn-ghost:hover{filter:brightness(1.1)}
+  </style>
+</head>
+
+<body>
+  <div class="oracle-stage">
+    <div class="field"></div>
+    <div class="grid"></div>
+    <div class="scanline"></div>
+
+    <main class="oracle-card" id="oracleCard">
+      <section class="oracle-inner">
+
+        <div>
+          <h1 class="title">Enter your VIN to awaken your vehicle profile.</h1>
+          <p class="subtitle">
+            VINvoyant doesn’t guess. It listens. It verifies. Then it guides you like it owns the runway.
+          </p>
+
+          <div class="ritual">
+            <div class="ritual-content">
+              <div class="vin-label">
+                <span>Vehicle Oracle</span>
+                <span class="status-pill" id="statusPill">Awaiting VIN</span>
+              </div>
+
+              <div class="vin-row">
+                <input id="vinInput" class="vin-input" maxlength="17" placeholder="17-CHAR VIN" autocomplete="off" />
+                <button class="oracle-btn" id="vinBtn">Awaken</button>
+              </div>
+
+              <p class="bossy-hint" id="bossyHint">
+                Type the VIN. No extra spaces. No hesitation. When it validates, the interface will deepen.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="oracle-right">
+          <div class="silhouette" id="silhouetteBox">
+            <div class="glow"></div>
+            <!-- Simple blueprint car outline (stylized) -->
+            <svg viewBox="0 0 900 260" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="vehicle blueprint">
+              <path d="M150 170c20-44 38-70 65-82 28-12 118-18 235-18s207 6 235 18c27 12 45 38 65 82"
+                    stroke="rgba(0,212,255,.8)" stroke-width="4" stroke-linecap="round"/>
+              <path d="M140 170h620c20 0 40 16 50 42l18 40H72l18-40c10-26 30-42 50-42Z"
+                    stroke="rgba(124,92,255,.75)" stroke-width="4" stroke-linejoin="round"/>
+              <circle cx="240" cy="210" r="36" stroke="rgba(234,240,255,.75)" stroke-width="4"/>
+              <circle cx="660" cy="210" r="36" stroke="rgba(234,240,255,.75)" stroke-width="4"/>
+              <path d="M330 96h240" stroke="rgba(234,240,255,.35)" stroke-width="4" stroke-linecap="round"/>
+              <path d="M295 140h310" stroke="rgba(234,240,255,.25)" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="data-flicker" id="dataFlicker">
+            <div class="datum"><span class="key">Year</span><span class="val" id="valYear">—</span></div>
+            <div class="datum"><span class="key">Engine</span><span class="val" id="valEngine">—</span></div>
+            <div class="datum"><span class="key">Drivetrain</span><span class="val" id="valDrive">—</span></div>
+          </div>
+        </aside>
+
+      </section>
+    </main>
+
+    <div class="guide" id="guide">
+      <div class="guide-card">
+        <div class="guide-inner">
+          <h3 class="guide-title" id="guideTitle">VIN Required</h3>
+          <p class="guide-text" id="guideText">
+            Enter the full 17-character VIN. Letters I, O, Q are not used in VINs. This is a precision ritual, not a guess.
+          </p>
+        </div>
+        <div class="guide-actions">
+          <button class="btn-ghost" id="guideClose">Understood</button>
+          <button class="oracle-btn" id="guideFocus">Take me to the VIN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Bossy, guided flow + loud feedback. No subtlety.
+
+    const vinInput = document.getElementById('vinInput');
+    const vinBtn = document.getElementById('vinBtn');
+    const statusPill = document.getElementById('statusPill');
+    const oracleCard = document.getElementById('oracleCard');
+
+    const valYear = document.getElementById('valYear');
+    const valEngine = document.getElementById('valEngine');
+    const valDrive = document.getElementById('valDrive');
+    const silhouetteBox = document.getElementById('silhouetteBox');
+
+    const guide = document.getElementById('guide');
+    const guideClose = document.getElementById('guideClose');
+    const guideFocus = document.getElementById('guideFocus');
+
+    // Simple VIN rules: 17 chars, no I/O/Q.
+    function looksLikeVin(v){
+      if(!v) return false;
+      if(v.length !== 17) return false;
+      if(/[IOQ]/.test(v)) return false;
+      if(!/^[A-HJ-NPR-Z0-9]{17}$/.test(v)) return false;
+      return true;
+    }
+
+    // Fake decode: just to animate “data flicker” while you wire real decode later.
+    function fakeDecode(v){
+      // Deterministic-ish vibe based on characters.
+      const yearMap = ["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"];
+      const engines = ["I4 Turbo","V6 Turbo","V8 Biturbo","I6 Turbo","Hybrid","EV"];
+      const drives = ["RWD","AWD","FWD","4MATIC","Quattro-ish Energy","Torque Vector AWD"];
+      const seed = v.split('').reduce((a,c)=>a + c.charCodeAt(0), 0);
+
+      return {
+        year: yearMap[seed % yearMap.length],
+        engine: engines[(seed >> 2) % engines.length],
+        drive: drives[(seed >> 4) % drives.length]
+      };
+    }
+
+    function setStatus(mode, text){
+      statusPill.classList.remove('ok','bad','loading');
+      statusPill.classList.add(mode);
+      statusPill.textContent = text;
+    }
+
+    function showGuide(){
+      guide.classList.add('show');
+    }
+    function hideGuide(){
+      guide.classList.remove('show');
+    }
+
+    // Super noticeable “deepening” transition
+    function deepen(){
+      oracleCard.classList.remove('deepen');
+      void oracleCard.offsetWidth;
+      oracleCard.classList.add('deepen');
+      silhouetteBox.querySelector('svg').style.transform = 'scale(1.06) rotate(-1deg)';
+      setTimeout(()=>{
+        silhouetteBox.querySelector('svg').style.transform = '';
+      }, 520);
+    }
+
+    function animateDataLoad(v){
+      const decoded = fakeDecode(v);
+
+      setStatus('loading', 'Decoding…');
+      valYear.textContent = '…';
+      valEngine.textContent = '…';
+      valDrive.textContent = '…';
+
+      // Loud, staged reveal
+      setTimeout(()=>{ valYear.textContent = decoded.year; }, 380);
+      setTimeout(()=>{ valEngine.textContent = decoded.engine; }, 720);
+      setTimeout(()=>{ valDrive.textContent = decoded.drive; }, 1050);
+
+      setTimeout(()=>{
+        setStatus('ok', 'Verified');
+        deepen();
+        // Here is where you transition to Section 2 later.
+        // For now we “command” the next step with a guide overlay.
+        setTimeout(()=>{
+          document.getElementById('guideTitle').textContent = 'Vehicle Profile Awakened';
+          document.getElementById('guideText').textContent =
+            'Profile loaded. Next: tell VINvoyant what the vehicle is doing. You will be guided step-by-step.';
+          showGuide();
+        }, 650);
+      }, 1300);
+    }
+
+    // Input behaviors
+    vinInput.addEventListener('input', ()=>{
+      vinInput.value = vinInput.value.toUpperCase().replace(/\s+/g,'');
+      const v = vinInput.value;
+      if(v.length === 0){
+        setStatus('', 'Awaiting VIN');
+        valYear.textContent = '—';
+        valEngine.textContent = '—';
+        valDrive.textContent = '—';
+        return;
+      }
+      if(v.length < 17){
+        setStatus('loading', `Typing… (${v.length}/17)`);
+        return;
+      }
+      if(looksLikeVin(v)){
+        setStatus('ok', 'Ready');
+      } else {
+        setStatus('bad', 'Invalid');
+      }
+    });
+
+    function submitVin(){
+      const v = vinInput.value.trim().toUpperCase();
+      if(!looksLikeVin(v)){
+        setStatus('bad','Invalid');
+        showGuide();
+        return;
+      }
+      animateDataLoad(v);
+    }
+
+    vinBtn.addEventListener('click', submitVin);
+    vinInput.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter') submitVin();
+    });
+
+    guideClose.addEventListener('click', hideGuide);
+    guideFocus.addEventListener('click', ()=>{
+      hideGuide();
+      vinInput.focus();
+      vinInput.select();
+      deepen();
+    });
+
+    // Initial bossy instruction
+    setTimeout(()=>showGuide(), 650);
+  </script>
+</body>
+</html>
