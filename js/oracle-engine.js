@@ -44,7 +44,7 @@
 
     // Auto-tag primary buttons to “pulse” like a command core
     const btns = Array.from(document.querySelectorAll('button, a, .btn, .cta'));
-    const primaryWords = /(start|request|pay|checkout|verify|submit|allocate|secure)/i;
+    const primaryWords = /(start|request|pay|checkout|verify|submit|allocate|secure|connect|join)/i;
 
     btns.forEach(b=>{
       const t = (b.textContent || '').trim();

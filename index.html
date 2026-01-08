@@ -407,25 +407,25 @@
       <section class="oracle-inner">
 
         <div>
-          <h1 class="title">Commence the Authentication Sequence.</h1>
+          <h1 class="title">Connect Your Vehicle.</h1>
           <p class="subtitle">
-            Our system utilizes advanced heuristic scanning to verify asset authenticity. This process ensures absolute precision in vehicle identification and historical data retrieval.
+            Bridge your vehicle's data with our intelligence network. Verify your VIN to begin the integration process.
           </p>
 
           <div class="ritual">
             <div class="ritual-content">
               <div class="vin-label">
-                <span>Asset Identification</span>
-                <span class="status-pill" id="statusPill">Awaiting Input</span>
+                <span>Vehicle Identification</span>
+                <span class="status-pill" id="statusPill">Ready to Connect</span>
               </div>
 
               <div class="vin-row">
-                <input id="vinInput" class="vin-input" maxlength="17" placeholder="ENTER VIN IDENTIFIER" autocomplete="off" />
-                <button class="oracle-btn" id="vinBtn">Initiate Scan</button>
+                <input id="vinInput" class="vin-input" maxlength="17" placeholder="ENTER VIN" autocomplete="off" />
+                <button class="oracle-btn" id="vinBtn">Connect</button>
               </div>
 
               <p class="bossy-hint" id="bossyHint">
-                Please input the 17-character alphanumeric identifier. The system will perform a real-time validation check against manufacturer databases.
+                Please enter your 17-character VIN. We'll handle the validation and sync up with the manufacturer's data.
               </p>
             </div>
           </div>
@@ -463,14 +463,14 @@
     <div class="guide" id="guide">
       <div class="guide-card">
         <div class="guide-inner">
-          <h3 class="guide-title" id="guideTitle">Authentication Protocol</h3>
+          <h3 class="guide-title" id="guideTitle">VIN Verification</h3>
           <p class="guide-text" id="guideText">
-            Please provide the complete 17-character Vehicle Identification Number. Note that letters I, O, and Q are excluded from standard VIN nomenclature to prevent confusion with numerals. Precision is required for successful database synchronization.
+            Please provide your 17-character Vehicle Identification Number. Standard VINs don't use the letters I, O, or Q. We'll verify it instantly.
           </p>
         </div>
         <div class="guide-actions">
-          <button class="btn-ghost" id="guideClose">Acknowledge</button>
-          <button class="oracle-btn" id="guideFocus">Proceed to Input</button>
+          <button class="btn-ghost" id="guideClose">Got it</button>
+          <button class="oracle-btn" id="guideFocus">Enter VIN</button>
         </div>
       </div>
     </div>
@@ -544,7 +544,7 @@
     function animateDataLoad(v){
       const decoded = fakeDecode(v);
 
-      setStatus('loading', 'Decoding…');
+      setStatus('loading', 'Connecting…');
       valYear.textContent = '…';
       valEngine.textContent = '…';
       valDrive.textContent = '…';
@@ -555,17 +555,17 @@
       setTimeout(()=>{ valDrive.textContent = decoded.drive; }, 1050);
 
       setTimeout(()=>{
-        setStatus('ok', 'Verified');
+        setStatus('ok', 'Connected');
         deepen();
         // Here is where you transition to Section 2 later.
         // For now we “command” the next step with a guide overlay.
         setTimeout(()=>{
-          document.getElementById('guideTitle').textContent = 'Asset Authenticated';
+          document.getElementById('guideTitle').textContent = 'Vehicle Verified';
           document.getElementById('guideText').textContent =
-            'Vehicle profile synchronized. System is ready for command input.';
+            'Connection established. Welcome to Vinvoyant.';
           
           const btn = document.getElementById('guideFocus');
-          btn.textContent = "Access Command Center";
+          btn.textContent = "Enter Dashboard";
           
           // Remove old listeners to avoid conflict (simple clone hack)
           const newBtn = btn.cloneNode(true);
@@ -585,7 +585,7 @@
       vinInput.value = vinInput.value.toUpperCase().replace(/\s+/g,'');
       const v = vinInput.value;
       if(v.length === 0){
-        setStatus('', 'Awaiting VIN');
+        setStatus('', 'Enter VIN');
         valYear.textContent = '—';
         valEngine.textContent = '—';
         valDrive.textContent = '—';
@@ -596,9 +596,9 @@
         return;
       }
       if(looksLikeVin(v)){
-        setStatus('ok', 'Ready');
+        setStatus('ok', 'Ready to Connect');
       } else {
-        setStatus('bad', 'Invalid');
+        setStatus('bad', 'Check VIN');
       }
     });
 

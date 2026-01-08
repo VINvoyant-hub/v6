@@ -230,12 +230,12 @@
   <div class="wrap">
     <main class="card">
       <div class="inner">
-        <h1 class="h">Discreet Sensory Relay.</h1>
-        <p class="p">The system operates continuously in the background, minimizing cognitive load. Notifications are delivered only when actionable variance is detected.</p>
+        <h1 class="h">Active Monitoring.</h1>
+        <p class="p">The system operates continuously in the background, keeping you connected without the noise. We'll only nudge you when it matters.</p>
 
         <section class="grid">
           <div class="panel">
-            <div class="panelTitle">Intelligence Stream</div>
+            <div class="panelTitle">Activity Feed</div>
             <div class="feed" id="feed"></div>
           </div>
 
@@ -247,12 +247,12 @@
               <div class="pill ok">Synced</div>
             </div>
 
-            <div class="panelTitle" style="margin-top:22px">Simulation Protocols</div>
+            <div class="panelTitle" style="margin-top:22px">Simulation Tools</div>
             <div class="actions">
               <button class="btn" onclick="window.location.href='dashboard.html'">Return</button>
-              <button class="btn" id="whisper1">Simulate Insight</button>
+              <button class="btn" id="whisper1">Simulate Update</button>
               <button class="btn" id="whisper2">Price Variance</button>
-              <button class="btn primary" id="whisper3">Risk Assessment</button>
+              <button class="btn primary" id="whisper3">Risk Check</button>
             </div>
           </div>
         </section>
@@ -263,12 +263,12 @@
   <div class="overlay" id="overlay">
     <div class="overlayCard">
       <div class="overlayInner">
-        <h3 class="oT" id="oT">Diagnostic Correlation</h3>
-        <p class="oP" id="oP">New inference data suggests a shift in asset profile. Review at your discretion.</p>
+        <h3 class="oT" id="oT">New Update</h3>
+        <p class="oP" id="oP">We've noticed a change in your vehicle's profile. Review at your discretion.</p>
       </div>
       <div class="oA">
-        <button class="btn" id="close">Acknowledge</button>
-        <button class="btn primary" id="addMore">Trigger Follow-up</button>
+        <button class="btn" id="close">Got it</button>
+        <button class="btn primary" id="addMore">See Details</button>
       </div>
     </div>
   </div>
@@ -313,25 +313,25 @@
     addMore.addEventListener('click', ()=>{
       overlay.classList.remove('show');
       setTimeout(() => {
-        pushWhisper("Secondary Correlation", "Additional data points have converged to support the initial finding. Probability index: 94%.");
+        pushWhisper("Secondary Update", "Additional data confirms the initial finding. Probability is high.");
       }, 500);
     });
 
     whisper1.addEventListener('click', ()=>{
-      pushWhisper("New Insight Available", "A diagnostic inference has been completed. The system is ready for your review.");
+      pushWhisper("New Insight", "System analysis complete. Ready for your review.");
     });
 
     whisper2.addEventListener('click', ()=>{
-      pushWhisper("Market Variance Detected", "Component acquisition cost has shifted favorably. Recalculating total cost of ownership.");
+      pushWhisper("Market Update", "Favorable shift in acquisition costs detected. Recalculating totals.");
     });
 
     whisper3.addEventListener('click', ()=>{
-      pushWhisper("Profile Update", "Asset risk profile has been adjusted based on new telemetry.");
+      pushWhisper("Profile Update", "Risk profile adjusted based on new data.");
     });
 
     // Seed one whisper on load without overlay
     setTimeout(()=>{
-      pushWhisper("System Active", "VINvoyant sensory relay initialized. Monitoring via silent protocols.", false);
+      pushWhisper("System Active", "Vinvoyant monitoring initialized. Silent mode active.", false);
     }, 700);
   </script>
   <script src="../js/oracle-engine.js"></script>

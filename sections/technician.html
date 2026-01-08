@@ -218,37 +218,36 @@
 
     <main class="card">
       <div class="inner">
-        <h1 class="h">System Oversight Active.</h1>
+        <h1 class="h">System Health.</h1>
         <p class="p">
-          Status: Calm. Assured. Precision-Guided. 
-          The architecture operates with the competence of a senior diagnostic engineer. No unnecessary data. No theatrical alarms.
+          Status: Online. We are monitoring your vehicle with the care of a lead technician.
         </p>
         <p class="p">
-          High-value assets require high-fidelity management. VINvoyant executes this mandate.
+          A direct line between you and your machine. Vinvoyant keeps that bridge strong.
         </p>
 
         <section class="assurance">
           <div class="tile">
-            <h3 class="tTitle">Signal Fidelity</h3>
-            <p class="tBody">We translate mechanical telemetry into verified human-readable intelligence. Zero noise floor. Absolute signal integrity.</p>
+            <h3 class="tTitle">Clear Signal</h3>
+            <p class="tBody">We translate complex mechanical data into clear, human-readable insights. No noise, just clarity.</p>
           </div>
           <div class="tile">
-            <h3 class="tTitle">Guided Protocol</h3>
-            <p class="tBody">The interface provides sequential guidance. Action items are presented only when critical mass is reached.</p>
+            <h3 class="tTitle">Guided Steps</h3>
+            <p class="tBody">We'll walk you through what needs attention, only when it's necessary. No unnecessary alarms.</p>
           </div>
           <div class="tile">
-            <h3 class="tTitle">Operational Competence</h3>
-            <p class="tBody">System behavior is deterministic, consistent, and deliberate. Ambiguity is eliminated.</p>
+            <h3 class="tTitle">Reliable Support</h3>
+            <p class="tBody">Consistent, accurate, and always there. We remove the ambiguity from vehicle ownership.</p>
           </div>
           <div class="tile">
-            <h3 class="tTitle">Trust Architecture</h3>
-            <p class="tBody">Confidence is not assumed; it is computed. Every interaction is validated against the manufacturer's logic.</p>
+            <h3 class="tTitle">Built on Trust</h3>
+            <p class="tBody">Confidence is key. Every interaction and data point is verified for your peace of mind.</p>
           </div>
         </section>
 
         <div class="actions">
-          <button class="btn" id="tone">Audit System Tone</button>
-          <button class="btn primary" id="continue">Proceed to Next Phase</button>
+          <button class="btn" id="tone">Check Status</button>
+          <button class="btn primary" id="continue">Return to Hub</button>
         </div>
       </div>
     </main>
@@ -259,13 +258,13 @@
       <div class="mInner">
         <h3 class="mT">Status Report</h3>
         <p class="mP">
-          System is stable. Trajectory is nominal. We are proceeding with the authentication sequence.
-          Your input will be requested when the logic gate opens. Stand by.
+          System is stable. Connection is strong. Everything is running as expected.
+          We're standing by if you need us.
         </p>
       </div>
       <div class="mA">
-        <button class="btn" id="close">Acknowledged</button>
-        <button class="btn primary" id="affirm">Execute</button>
+        <button class="btn" id="close">Close</button>
+        <button class="btn primary" id="affirm">Good</button>
       </div>
     </div>
   </div>
@@ -282,7 +281,7 @@
     affirm.addEventListener('click', ()=>{
       modal.classList.remove('show');
       // No alert, just log or silent transition
-      console.log("Proceeding. Calmly. Precisely.");
+      console.log("Proceeding. Calmly.");
     });
 
     cont.addEventListener('click', ()=>{
