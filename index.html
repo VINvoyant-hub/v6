@@ -384,9 +384,240 @@
     }
     .btn-ghost:hover{filter:brightness(1.1)}
   </style>
+<style>
+  :root{
+    --vx-bg0:#070A10;
+    --vx-bg1:#0B1220;
+    --vx-ink:#EAF0FF;
+    --vx-dim:rgba(234,240,255,.72);
+    --vx-faint:rgba(234,240,255,.45);
+    --vx-edge:rgba(234,240,255,.12);
+    --vx-edge2:rgba(234,240,255,.08);
+    --vx-accent:#8BF9D2;      /* mint */
+    --vx-accent2:#B49BFF;     /* violet */
+    --vx-warn:#FFCE73;
+    --vx-danger:#FF6B8A;
+
+    --vx-radius:18px;
+    --vx-shadow: 0 18px 60px rgba(0,0,0,.55);
+    --vx-shadow2: 0 10px 30px rgba(0,0,0,.42);
+
+    --vx-slow: 1200ms;
+    --vx-med: 700ms;
+    --vx-fast: 320ms;
+
+    --vx-ease: cubic-bezier(.2,.9,.2,1);
+  }
+
+  /* --- ATMOSPHERE LAYERS --- */
+  .vx-atmo{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    overflow:hidden;
+  }
+
+  .vx-void{
+    position:absolute; inset:-20%;
+    background:
+      radial-gradient(1200px 900px at 15% 15%, rgba(180,155,255,.16), transparent 55%),
+      radial-gradient(900px 700px at 75% 35%, rgba(139,249,210,.12), transparent 55%),
+      radial-gradient(1200px 900px at 45% 85%, rgba(180,155,255,.10), transparent 60%),
+      linear-gradient(180deg, var(--vx-bg0), var(--vx-bg1));
+    filter:saturate(1.05) contrast(1.05);
+    animation:vxVoidBreath 10s var(--vx-ease) infinite alternate;
+    transform:translate3d(0,0,0);
+  }
+
+  @keyframes vxVoidBreath{
+    0%{ transform:scale(1) translateY(0); filter:saturate(1.02) contrast(1.04); }
+    100%{ transform:scale(1.02) translateY(-1.2%); filter:saturate(1.08) contrast(1.08); }
+  }
+
+  .vx-grid{
+    position:absolute; inset:0;
+    background:
+      linear-gradient(to right, var(--vx-edge2) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--vx-edge2) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity:.25;
+    mask-image: radial-gradient(closest-side at 50% 40%, rgba(0,0,0,.95), transparent 70%);
+    animation:vxGridDrift 16s linear infinite;
+  }
+
+  @keyframes vxGridDrift{
+    from{ background-position:0 0, 0 0; }
+    to{ background-position:64px 64px, 64px 64px; }
+  }
+
+  .vx-scanlines{
+    position:absolute; inset:0;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,.045) 0px,
+      rgba(255,255,255,.045) 1px,
+      transparent 2px,
+      transparent 6px
+    );
+    opacity:.18;
+    animation:vxScan 5.8s linear infinite;
+  }
+
+  @keyframes vxScan{
+    from{ transform:translateY(-10%); }
+    to{ transform:translateY(10%); }
+  }
+
+  .vx-vignette{
+    position:absolute; inset:-5%;
+    background: radial-gradient(closest-side at 50% 35%, transparent 45%, rgba(0,0,0,.65) 100%);
+    opacity:.85;
+  }
+
+  .vx-noise{
+    position:absolute; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+    opacity:.05;
+  }
+
+  .vx-cursorHalo{
+    position:absolute;
+    width:520px; height:520px;
+    border-radius:50%;
+    background: radial-gradient(circle at center,
+      rgba(139,249,210,.10),
+      rgba(180,155,255,.06) 35%,
+      transparent 70%
+    );
+    transform:translate(-9999px,-9999px);
+    transition: transform 80ms linear;
+    filter: blur(2px);
+    opacity:.85;
+  }
+
+  /* --- PUT YOUR CONTENT ABOVE THE ATMOSPHERE --- */
+  body{ background: var(--vx-bg0); color:var(--vx-ink); }
+  body > *{ position:relative; z-index:1; }
+
+  /* --- ORACLE “MACHINE” POLISH (applies to most layouts safely) --- */
+  .vx-cardlike,
+  .card, .panel, .section, .box, .container, .wrap, .content,
+  form, .form, .intake, .module {
+    background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+    border: 1px solid var(--vx-edge);
+    border-radius: var(--vx-radius);
+    box-shadow: var(--vx-shadow2);
+    backdrop-filter: blur(8px);
+  }
+
+  /* Inputs feel like instrumentation */
+  input, select, textarea, button{
+    border-radius: 14px;
+  }
+
+  input, select, textarea{
+    background: rgba(0,0,0,.28);
+    border: 1px solid var(--vx-edge);
+    color: var(--vx-ink);
+    outline: none;
+    transition: border var(--vx-fast) var(--vx-ease), box-shadow var(--vx-fast) var(--vx-ease), transform var(--vx-fast) var(--vx-ease);
+  }
+
+  input::placeholder, textarea::placeholder{ color: rgba(234,240,255,.45); }
+
+  input:focus, select:focus, textarea:focus{
+    border-color: rgba(139,249,210,.40);
+    box-shadow: 0 0 0 4px rgba(139,249,210,.10), 0 0 0 1px rgba(139,249,210,.20) inset;
+    transform: translateY(-1px);
+  }
+
+  /* Buttons become “commands” */
+  button, .btn, a.button, .cta{
+    background: linear-gradient(135deg, rgba(139,249,210,.16), rgba(180,155,255,.14));
+    border: 1px solid rgba(234,240,255,.16);
+    color: var(--vx-ink);
+    box-shadow: var(--vx-shadow2);
+    transition: transform var(--vx-fast) var(--vx-ease), filter var(--vx-fast) var(--vx-ease), box-shadow var(--vx-fast) var(--vx-ease);
+  }
+
+  button:hover, .btn:hover, a.button:hover, .cta:hover{
+    transform: translateY(-2px);
+    filter: brightness(1.06);
+    box-shadow: 0 16px 45px rgba(0,0,0,.52);
+  }
+
+  button:active, .btn:active, a.button:active, .cta:active{
+    transform: translateY(0px) scale(.99);
+  }
+
+  /* “Oracle pulse” for primary CTA (auto-detects Start/Pay-ish buttons) */
+  .vx-primary{
+    position:relative;
+    isolation:isolate;
+  }
+  .vx-primary::after{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius: inherit;
+    background: radial-gradient(closest-side at 50% 50%, rgba(139,249,210,.22), transparent 62%);
+    z-index:-1;
+    opacity:.0;
+    animation: vxPulse 2.6s var(--vx-ease) infinite;
+  }
+
+  @keyframes vxPulse{
+    0%{ opacity:.0; transform:scale(.98); }
+    35%{ opacity:.65; transform:scale(1.02); }
+    100%{ opacity:.0; transform:scale(1.06); }
+  }
+
+  /* Section entrance (dramatic, but clean) */
+  .vx-reveal{
+    opacity:0;
+    transform: translateY(18px) scale(.985);
+    filter: blur(3px);
+    transition:
+      opacity var(--vx-med) var(--vx-ease),
+      transform var(--vx-med) var(--vx-ease),
+      filter var(--vx-med) var(--vx-ease);
+    will-change: opacity, transform, filter;
+  }
+
+  .vx-reveal.vx-on{
+    opacity:1;
+    transform: translateY(0) scale(1);
+    filter: blur(0px);
+  }
+
+  /* Little “machine ticks” on labels/help text */
+  label, .label, .hint, .help, .note, small{
+    color: var(--vx-dim);
+    text-shadow: 0 0 18px rgba(139,249,210,.05);
+  }
+
+  /* Reduced motion: keep the vibe, kill the motion */
+  @media (prefers-reduced-motion: reduce){
+    .vx-void, .vx-grid, .vx-scanlines { animation:none !important; }
+    .vx-primary::after{ animation:none !important; }
+    .vx-reveal{ opacity:1; transform:none; filter:none; }
+    .vx-cursorHalo{ display:none; }
+  }
+</style>
 </head>
 
 <body>
+<!-- ORACLE ENGINE: ATMOSPHERE LAYERS -->
+<div class="vx-atmo" aria-hidden="true">
+  <div class="vx-void"></div>
+  <div class="vx-grid"></div>
+  <div class="vx-scanlines"></div>
+  <div class="vx-vignette"></div>
+  <div class="vx-cursorHalo"></div>
+  <div class="vx-noise"></div>
+</div>
   <div class="oracle-stage">
     <div class="field"></div>
     <div class="grid"></div>
@@ -602,5 +833,101 @@
     // Initial bossy instruction
     setTimeout(()=>showGuide(), 650);
   </script>
+<script>
+  (function(){
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Cursor halo follows the mouse (ominous-but-friendly “presence”)
+    const halo = document.querySelector('.vx-cursorHalo');
+    if (halo && !prefersReduced){
+      window.addEventListener('mousemove', (e) => {
+        const x = e.clientX - 260;
+        const y = e.clientY - 260;
+        halo.style.transform = `translate(${x}px, ${y}px)`;
+      }, {passive:true});
+    }
+
+    // Reveal engine: make sections appear like a machine “waking up”
+    const candidates = [
+      'section',
+      '[id*="intake"]',
+      'form',
+      '[id*="pricing"]',
+      '[id*="how"]',
+      '[id*="deliver"]',
+      '[id*="faq"]',
+      '.card', '.panel', '.module'
+    ];
+
+    const nodes = new Set();
+    candidates.forEach(sel => document.querySelectorAll(sel).forEach(n => nodes.add(n)));
+
+    nodes.forEach(n => n.classList.add('vx-reveal'));
+
+    if (!prefersReduced && 'IntersectionObserver' in window){
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(ent=>{
+          if(ent.isIntersecting){
+            ent.target.classList.add('vx-on');
+            io.unobserve(ent.target);
+          }
+        });
+      }, {threshold: 0.12});
+      nodes.forEach(n => io.observe(n));
+    } else {
+      nodes.forEach(n => n.classList.add('vx-on'));
+    }
+
+    // Auto-tag primary buttons to “pulse” like a command core
+    const btns = Array.from(document.querySelectorAll('button, a, .btn, .cta'));
+    const primaryWords = /(start|request|pay|checkout|verify|submit)/i;
+
+    btns.forEach(b=>{
+      const t = (b.textContent || '').trim();
+      if(primaryWords.test(t)){
+        b.classList.add('vx-primary');
+      }
+    });
+
+    // Intake instrumentation: inputs “acknowledge” like a system panel
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(el=>{
+      el.addEventListener('input', ()=>{
+        el.style.boxShadow = '0 0 0 4px rgba(180,155,255,.08), 0 0 0 1px rgba(234,240,255,.10) inset';
+        clearTimeout(el.__vxT);
+        el.__vxT = setTimeout(()=>{ el.style.boxShadow = ''; }, 420);
+      }, {passive:true});
+    });
+
+    // Optional: if there’s a payment status element, make it feel “alive”
+    // Looks for text like "Payment: Not confirmed"
+    const bodyText = document.body.innerText || '';
+    if (/Payment:\s*Not confirmed/i.test(bodyText) && !prefersReduced){
+      const all = document.querySelectorAll('*');
+      for(const el of all){
+        if(el.children.length === 0 && /Payment:\s*Not confirmed/i.test(el.textContent || '')){
+          el.style.position = 'relative';
+          el.style.display = 'inline-block';
+          el.style.padding = '6px 10px';
+          el.style.borderRadius = '12px';
+          el.style.border = '1px solid rgba(255,255,255,.14)';
+          el.style.background = 'rgba(0,0,0,.24)';
+          el.style.boxShadow = '0 0 0 4px rgba(255,107,138,.08)';
+          el.style.animation = 'vxWarn 1.8s ease-in-out infinite';
+          const style = document.createElement('style');
+          style.textContent = `
+            @keyframes vxWarn{
+              0%{ filter:brightness(1); transform:translateY(0); }
+              50%{ filter:brightness(1.08); transform:translateY(-1px); }
+              100%{ filter:brightness(1); transform:translateY(0); }
+            }
+          `;
+          document.head.appendChild(style);
+          break;
+        }
+      }
+    }
+  })();
+</script>
 </body>
 </html>
