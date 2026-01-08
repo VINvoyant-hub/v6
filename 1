@@ -1,0 +1,606 @@
+7. Notifications → “Whispers, Not Alarms”
+Description (exactly as presented earlier):
+No spammy emails. No robotic alerts.
+
+
+
+Instead:
+
+“Your vehicle’s risk profile just shifted.”
+
+“New insight available.”
+
+“A component you asked about just became cheaper.”
+
+
+This makes the system feel alive but not needy.
+
+Code (paste as-is into Netlify as index.html for Section 7):
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VINvoyant — Whispers, Not Alarms</title>
+  <style>
+    :root{
+      --bg:#05060a; --ink:#eaf0ff; --muted:rgba(234,240,255,.72);
+      --stroke:rgba(234,240,255,.14);
+      --accent:#7c5cff; --accent2:#00d4ff; --ok:#24ff7a; --bad:#ff2e6a;
+      --shadow: 0 30px 90px rgba(0,0,0,.6);
+      --radius: 22px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 700px at 50% 20%, rgba(0,212,255,.14), transparent 60%),
+        radial-gradient(900px 600px at 20% 80%, rgba(124,92,255,.16), transparent 60%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    .wrap{min-height:100%; display:grid; place-items:center; padding:28px 16px}
+    .card{
+      width:min(1100px, 100%);
+      border-radius: var(--radius);
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(20,24,35,.82), rgba(10,12,18,.82));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .card::before{
+      content:""; position:absolute; inset:-2px;
+      background: radial-gradient(700px 300px at 15% 15%, rgba(0,212,255,.22), transparent 60%),
+                  radial-gradient(700px 300px at 85% 85%, rgba(124,92,255,.20), transparent 60%);
+      opacity:.8; pointer-events:none;
+    }
+    .inner{position:relative; padding: 22px}
+    .h{margin:0 0 6px; font-size: 28px}
+    .p{margin:0 0 18px; color:var(--muted); line-height:1.5; font-size: 14px}
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr .9fr;
+      gap: 14px;
+      align-items:start;
+    }
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+
+    .panel{
+      border-radius: 18px;
+      border:1px solid rgba(234,240,255,.10);
+      background: rgba(0,0,0,.25);
+      padding: 16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .panelTitle{
+      margin:0 0 10px;
+      font-weight: 950;
+      letter-spacing:.04em;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: rgba(234,240,255,.80);
+    }
+
+    /* Whisper feed */
+    .feed{display:grid; gap:10px}
+    .whisper{
+      border-radius: 16px;
+      border:1px solid rgba(234,240,255,.10);
+      background: rgba(0,0,0,.25);
+      padding: 12px;
+      display:grid;
+      gap: 6px;
+      position:relative;
+      overflow:hidden;
+      transform: translateY(10px);
+      opacity: 0;
+      animation: arrive .45s cubic-bezier(.2,.8,.2,1) forwards;
+    }
+    @keyframes arrive{
+      to{transform: translateY(0px); opacity: 1;}
+    }
+    .whisper::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,.14), transparent);
+      transform: translateX(-120%);
+      animation: shimmer 2.8s ease-in-out infinite;
+      opacity:.6;
+      pointer-events:none;
+    }
+    @keyframes shimmer{
+      0%{transform:translateX(-120%)}
+      55%{transform:translateX(120%)}
+      100%{transform:translateX(120%)}
+    }
+
+    .wTop{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .wTitle{font-weight: 950; letter-spacing:.02em}
+    .wTime{color: rgba(234,240,255,.66); font-size: 12px}
+    .wBody{color: rgba(234,240,255,.80); font-size: 13px; line-height:1.45}
+
+    /* Quiet intensity indicator */
+    .tone{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top: 12px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(234,240,255,.16);
+      background: rgba(0,0,0,.35);
+      font-weight: 900;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+      font-size: 11px;
+      user-select:none;
+    }
+    .pill.ok{border-color: rgba(36,255,122,.35); color: rgba(36,255,122,.92)}
+    .pill.info{border-color: rgba(0,212,255,.35); color: rgba(0,212,255,.92)}
+    .pill.calm{border-color: rgba(124,92,255,.35); color: rgba(124,92,255,.92)}
+
+    .actions{margin-top: 12px; display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap}
+    .btn{
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(234,240,255,.16);
+      cursor:pointer;
+      font-weight: 950;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+      background: rgba(0,0,0,.30);
+      color: rgba(234,240,255,.92);
+      transition: transform .16s ease, filter .16s ease;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(0,212,255,.72));
+      color: #05060a;
+      box-shadow: 0 18px 50px rgba(0,212,255,.10);
+    }
+    .btn:hover{transform: translateY(-2px); filter: brightness(1.08)}
+    .btn:active{transform: translateY(0px); filter: brightness(.98)}
+
+    /* Bossy whisper overlay (commanding but not spammy) */
+    .overlay{
+      position:fixed; inset:0;
+      display:none; place-items:center;
+      background: rgba(0,0,0,.7);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      z-index: 20;
+    }
+    .overlay.show{display:grid}
+    .overlayCard{
+      width:min(820px, 100%);
+      border-radius: 22px;
+      border:1px solid rgba(234,240,255,.16);
+      background: linear-gradient(180deg, rgba(20,24,35,.92), rgba(10,12,18,.92));
+      box-shadow: 0 40px 120px rgba(0,0,0,.7);
+      overflow:hidden;
+      position:relative;
+    }
+    .overlayCard::before{
+      content:""; position:absolute; inset:-2px;
+      background: radial-gradient(500px 260px at 18% 20%, rgba(0,212,255,.28), transparent 60%),
+                  radial-gradient(500px 260px at 82% 80%, rgba(124,92,255,.22), transparent 60%);
+      opacity:.85; pointer-events:none;
+    }
+    .overlayInner{position:relative; padding: 18px}
+    .oT{margin:0 0 6px; font-size: 20px}
+    .oP{margin:0; color: rgba(234,240,255,.78); line-height:1.5; font-size: 14px}
+    .oA{display:flex; gap:10px; justify-content:flex-end; padding: 0 18px 16px}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <main class="card">
+      <div class="inner">
+        <h1 class="h">Whispers, not alarms.</h1>
+        <p class="p">The system stays alive in the background — but never needy. You get meaningful updates only.</p>
+
+        <section class="grid">
+          <div class="panel">
+            <div class="panelTitle">Whisper Feed</div>
+            <div class="feed" id="feed"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panelTitle">Tone</div>
+            <div class="tone">
+              <div class="pill calm">Alive</div>
+              <div class="pill info">Non-spammy</div>
+              <div class="pill ok">Meaningful</div>
+            </div>
+
+            <div class="panelTitle" style="margin-top:14px">Controls</div>
+            <div class="actions">
+              <button class="btn" id="whisper1">Inject Whisper</button>
+              <button class="btn" id="whisper2">Price Drop Whisper</button>
+              <button class="btn primary" id="whisper3">Risk Shift Whisper</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="overlayCard">
+      <div class="overlayInner">
+        <h3 class="oT" id="oT">New Insight</h3>
+        <p class="oP" id="oP">A whisper arrived. Read it. Then continue. No panic. Just precision.</p>
+      </div>
+      <div class="oA">
+        <button class="btn" id="close">Understood</button>
+        <button class="btn primary" id="addMore">Send Another Whisper</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const feed = document.getElementById('feed');
+    const overlay = document.getElementById('overlay');
+    const oT = document.getElementById('oT');
+    const oP = document.getElementById('oP');
+    const close = document.getElementById('close');
+    const addMore = document.getElementById('addMore');
+
+    const whisper1 = document.getElementById('whisper1');
+    const whisper2 = document.getElementById('whisper2');
+    const whisper3 = document.getElementById('whisper3');
+
+    function nowTime(){
+      const d = new Date();
+      return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    }
+
+    function pushWhisper(title, body){
+      const el = document.createElement('div');
+      el.className = 'whisper';
+      el.innerHTML = `
+        <div class="wTop">
+          <div class="wTitle">${title}</div>
+          <div class="wTime">${nowTime()}</div>
+        </div>
+        <div class="wBody">${body}</div>
+      `;
+      feed.prepend(el);
+
+      // Bossy, guided read (commanding, but not noisy)
+      oT.textContent = title;
+      oP.textContent = body;
+      overlay.classList.add('show');
+    }
+
+    close.addEventListener('click', ()=> overlay.classList.remove('show'));
+    addMore.addEventListener('click', ()=>{
+      overlay.classList.remove('show');
+      pushWhisper("New insight available.", "A new diagnostic inference is ready. Read it when you’re focused.");
+    });
+
+    whisper1.addEventListener('click', ()=>{
+      pushWhisper("New insight available.", "A new diagnostic inference is ready. Read it when you’re focused.");
+    });
+
+    whisper2.addEventListener('click', ()=>{
+      pushWhisper("Price shift detected.", "A component you asked about just became cheaper.");
+    });
+
+    whisper3.addEventListener('click', ()=>{
+      pushWhisper("Profile shift detected.", "Your vehicle’s risk profile just shifted.");
+    });
+
+    // Seed one whisper on load
+    setTimeout(()=>{
+      pushWhisper("New insight available.", "VINvoyant is awake. Updates will arrive as whispers — not alarms.");
+    }, 700);
+  </script>
+</body>
+</html>
+
+
+---
+
+8. Emotional Layer → “You Are Being Taken Care Of”
+Description (exactly as presented earlier):
+This is the invisible billion-dollar layer.
+
+
+
+Tone:
+
+Calm
+
+Assured
+
+Curious
+
+Never panicked
+
+Never salesy
+
+
+The interface speaks like a great doctor or a great pilot:
+Not dramatic. Not casual. Competent.
+
+This is what people trust with expensive things.
+
+Code (paste as-is into Netlify as index.html for Section 8):
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>VINvoyant — You Are Being Taken Care Of</title>
+  <style>
+    :root{
+      --bg:#05060a; --ink:#eaf0ff; --muted:rgba(234,240,255,.72);
+      --stroke:rgba(234,240,255,.14);
+      --accent:#7c5cff; --accent2:#00d4ff; --ok:#24ff7a;
+      --shadow: 0 30px 90px rgba(0,0,0,.6);
+      --radius: 22px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 700px at 50% 20%, rgba(124,92,255,.18), transparent 60%),
+        radial-gradient(900px 500px at 80% 70%, rgba(0,212,255,.12), transparent 60%),
+        radial-gradient(900px 600px at 20% 80%, rgba(36,255,122,.08), transparent 60%),
+        var(--bg);
+      overflow-x:hidden;
+    }
+
+    .wrap{
+      min-height:100%;
+      display:grid;
+      place-items:center;
+      padding:28px 16px;
+      position:relative;
+    }
+
+    /* Calm, assured “field” */
+    .field{
+      position:absolute; inset:-60px;
+      background:
+        radial-gradient(700px 380px at 50% 30%, rgba(0,212,255,.12), transparent 60%),
+        radial-gradient(700px 380px at 50% 70%, rgba(124,92,255,.14), transparent 60%),
+        radial-gradient(900px 700px at 50% 55%, rgba(0,0,0,.65), rgba(0,0,0,.92));
+      animation: drift 10s ease-in-out infinite;
+      opacity:.9;
+      pointer-events:none;
+    }
+    @keyframes drift{
+      0%,100%{transform: scale(1) rotate(0deg)}
+      50%{transform: scale(1.03) rotate(1deg)}
+    }
+
+    .card{
+      width:min(980px, 100%);
+      border-radius: var(--radius);
+      border:1px solid var(--stroke);
+      background: linear-gradient(180deg, rgba(20,24,35,.82), rgba(10,12,18,.82));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+    .card::before{
+      content:""; position:absolute; inset:-2px;
+      background: radial-gradient(700px 300px at 15% 15%, rgba(124,92,255,.30), transparent 60%),
+                  radial-gradient(700px 300px at 85% 85%, rgba(0,212,255,.18), transparent 60%);
+      opacity:.8; pointer-events:none;
+    }
+    .inner{position:relative; padding: 26px}
+
+    .h{
+      margin:0 0 10px;
+      font-size: clamp(28px, 3vw, 44px);
+      letter-spacing:.2px;
+      line-height:1.06;
+    }
+    .p{
+      margin:0 0 14px;
+      color:var(--muted);
+      line-height:1.6;
+      font-size: 15px;
+      max-width: 70ch;
+    }
+
+    .assurance{
+      margin-top: 16px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 880px){ .assurance{grid-template-columns:1fr} }
+
+    .tile{
+      border-radius: 18px;
+      border:1px solid rgba(234,240,255,.10);
+      background: rgba(0,0,0,.25);
+      padding: 16px;
+      position:relative;
+      overflow:hidden;
+    }
+    .tile::after{
+      content:"";
+      position:absolute; inset:0;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,.12), transparent);
+      transform: translateX(-120%);
+      animation: shimmer 3.2s ease-in-out infinite;
+      opacity:.55;
+      pointer-events:none;
+    }
+    @keyframes shimmer{
+      0%{transform:translateX(-120%)}
+      55%{transform:translateX(120%)}
+      100%{transform:translateX(120%)}
+    }
+    .tTitle{
+      margin:0 0 6px;
+      font-weight: 950;
+      letter-spacing:.02em;
+    }
+    .tBody{
+      margin:0;
+      color: rgba(234,240,255,.78);
+      line-height:1.5;
+      font-size: 13px;
+    }
+
+    .actions{
+      margin-top: 14px;
+      display:flex;
+      gap:10px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    .btn{
+      padding: 12px 14px;
+      border-radius: 14px;
+      border:1px solid rgba(234,240,255,.16);
+      cursor:pointer;
+      font-weight: 950;
+      letter-spacing:.06em;
+      text-transform: uppercase;
+      background: rgba(0,0,0,.30);
+      color: rgba(234,240,255,.92);
+      transition: transform .16s ease, filter .16s ease;
+    }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(0,212,255,.72));
+      color: #05060a;
+      box-shadow: 0 18px 50px rgba(0,212,255,.10);
+    }
+    .btn:hover{transform: translateY(-2px); filter: brightness(1.08)}
+    .btn:active{transform: translateY(0px); filter: brightness(.98)}
+
+    /* Competent, calm “pilot voice” modal */
+    .modal{
+      position:fixed; inset:0;
+      display:none; place-items:center;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(10px);
+      padding: 18px;
+      z-index: 25;
+    }
+    .modal.show{display:grid}
+    .mCard{
+      width:min(820px,100%);
+      border-radius: 22px;
+      border:1px solid rgba(234,240,255,.16);
+      background: linear-gradient(180deg, rgba(20,24,35,.94), rgba(10,12,18,.94));
+      box-shadow: 0 40px 120px rgba(0,0,0,.7);
+      overflow:hidden;
+      position:relative;
+    }
+    .mCard::before{
+      content:""; position:absolute; inset:-2px;
+      background: radial-gradient(500px 260px at 18% 20%, rgba(124,92,255,.35), transparent 60%),
+                  radial-gradient(500px 260px at 82% 80%, rgba(0,212,255,.22), transparent 60%);
+      opacity:.85; pointer-events:none;
+    }
+    .mInner{position:relative; padding: 18px}
+    .mT{margin:0 0 6px; font-size: 20px}
+    .mP{margin:0; color: rgba(234,240,255,.78); line-height:1.6; font-size: 14px}
+    .mA{display:flex; gap:10px; justify-content:flex-end; padding: 0 18px 16px}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="field"></div>
+
+    <main class="card">
+      <div class="inner">
+        <h1 class="h">You are being taken care of.</h1>
+        <p class="p">
+          Calm. Assured. Curious. Never panicked. Never salesy.
+          The system speaks like a great doctor or a great pilot: not dramatic, not casual — competent.
+        </p>
+        <p class="p">
+          Expensive things demand competence. Your vehicle is one of them. VINvoyant behaves accordingly.
+        </p>
+
+        <section class="assurance">
+          <div class="tile">
+            <h3 class="tTitle">Clarity first</h3>
+            <p class="tBody">We translate mechanical reality into human certainty. No theatrics. No fear. Just signal.</p>
+          </div>
+          <div class="tile">
+            <h3 class="tTitle">Guidance, not noise</h3>
+            <p class="tBody">You will be guided step-by-step. The system does not nag. It speaks when it matters.</p>
+          </div>
+          <div class="tile">
+            <h3 class="tTitle">Competence you can feel</h3>
+            <p class="tBody">The interface behaves like a professional: clear, consistent, and deliberate.</p>
+          </div>
+          <div class="tile">
+            <h3 class="tTitle">Trust is engineered</h3>
+            <p class="tBody">Trust isn’t a vibe. It’s a system. VINvoyant is built to earn it.</p>
+          </div>
+        </section>
+
+        <div class="actions">
+          <button class="btn" id="tone">Hear the tone</button>
+          <button class="btn primary" id="continue">Continue</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="mCard">
+      <div class="mInner">
+        <h3 class="mT">Status update</h3>
+        <p class="mP">
+          We’re stable. We’re precise. We’re moving with intention.
+          Your next step will be clear when you’re ready. No rush. No panic.
+        </p>
+      </div>
+      <div class="mA">
+        <button class="btn" id="close">Understood</button>
+        <button class="btn primary" id="affirm">Proceed</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('modal');
+    const tone = document.getElementById('tone');
+    const cont = document.getElementById('continue');
+    const close = document.getElementById('close');
+    const affirm = document.getElementById('affirm');
+
+    tone.addEventListener('click', ()=> modal.classList.add('show'));
+    close.addEventListener('click', ()=> modal.classList.remove('show'));
+    affirm.addEventListener('click', ()=>{
+      modal.classList.remove('show');
+      alert("Proceeding. Calmly. Precisely. Next sections will take over.");
+    });
+
+    cont.addEventListener('click', ()=>{
+      alert("Continue. You’re guided. No panic. No noise.");
+    });
+
+    // quiet “competence” prompt on load
+    setTimeout(()=> modal.classList.add('show'), 900);
+  </script>
+</body>
+</html>
