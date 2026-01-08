@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VINvoyant - Experience</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #000;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .oracle-container, .diagnostic-engine, .evidence-upload, .pricing-tiers, .vehicle-dashboard, .technician-overlay, .notifications, .emotional-layer {
+            padding: 40px;
+            background-color: rgba(0, 0, 0, 0.9);
+            border-radius: 10px;
+            color: #fff;
+            max-width: 900px;
+            margin: 20px auto;
+            text-align: left;
+        }
+
+        h1, h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+
+        .vin-input-wrapper, .conversation-panel, .technician-input, .pricing-tiers, .evidence-upload, .notifications, .emotional-layer {
+            text-align: center;
+        }
+
+        input[type="text"], textarea {
+            padding: 10px;
+            font-size: 1.2rem;
+            width: 80%;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            margin-top: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .timeline, .confidence-meter, .insight-log, .machine-hypothesis {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        .notification-list li {
+            background-color: rgba(255, 255, 255, 0.1);
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .emotional-layer p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Vehicle Oracle Landing -->
+    <div class="oracle-container">
+        <h1>Enter Your VIN</h1>
+        <div class="vin-input-wrapper">
+            <input type="text" id="vin-input" placeholder="Enter VIN here">
+            <button id="submit-vin">Submit</button>
+        </div>
+        <div id="vehicle-profile" class="hidden"></div>
+    </div>
+
+    <!-- Diagnostic Consciousness Engine -->
+    <div class="diagnostic-engine hidden">
+        <div class="vehicle-profile-summary"></div>
+        <div class="conversation-panel">
+            <p class="prompt">What feels wrong with your vehicle?</p>
+            <input type="text" id="symptom-input" placeholder="Describe the issue...">
+            <button id="next-step">Next</button>
+        </div>
+    </div>
+
+    <!-- Evidence Upload - Sensory Cortex -->
+    <div class="evidence-upload hidden">
+        <p>Show me what your vehicle is showing you:</p>
+        <input type="file" id="evidence-input" accept="image/*,video/*">
+        <button id="upload-evidence">Upload</button>
+        <div id="evidence-preview" class="hidden"></div>
+    </div>
+
+    <!-- Pricing & Tiers - Cognitive Power Levels -->
+    <div class="pricing-tiers hidden
+    <!-- Pricing & Tiers - Cognitive Power Levels -->
+    <div class="pricing-tiers hidden">
+        <h2>Choose Your Diagnostic Level</h2>
+        <div class="tier" id="tier-snapshot">
+            <h3>Snapshot Insight</h3>
+            <p>Surface diagnosis and priority guidance.</p>
+            <button class="select-tier" data-tier="snapshot">Select</button>
+        </div>
+        <div class="tier" id="tier-deep-diagnostic">
+            <h3>Deep Diagnostic</h3>
+            <p>Causal chain analysis and detailed parts & labor logic.</p>
+            <button class="select-tier" data-tier="deep-diagnostic">Select</button>
+        </div>
+        <div class="tier" id="tier-concierge">
+            <h3>Concierge Mode</h3>
+            <p>All insights plus parts sourcing and human oversight.</p>
+            <button class="select-tier" data-tier="concierge">Select</button>
+        </div>
+    </div>
+
+    <!-- Vehicle Mind Palace - Dashboard -->
+    <div class="vehicle-dashboard hidden">
+        <h2>Your Vehicle Mind Palace</h2>
+        <div class="timeline">
+            <!-- Timeline of vehicle data and insights -->
+        </div>
+        <div class="confidence-meter">
+            <!-- Confidence indicator -->
+        </div>
+        <div class="insight-log">
+            <!-- Log of insights and updates -->
+        </div>
+    </div>
+
+    <!-- Technician Layer - Human Intelligence Overlay -->
+    <div class="technician-overlay hidden">
+        <h2>Expert Technician Insights</h2>
+        <div class="machine-hypothesis">
+            <!-- Machine-generated hypothesis will appear here -->
+        </div>
+        <div class="technician-input">
+            <p>Technician's confirmation, correction, or nuance:</p>
+            <textarea id="technician-comments" placeholder="Enter your insights..."></textarea>
+            <button id="submit-comments">Submit</button>
+        </div>
+    </div>
+
+    <!-- Notifications - Whispers, Not Alarms -->
+    <div class="notifications hidden">
+        <h2>Vehicle Alerts & Updates</h2>
+        <ul class="notification-list">
+            <!-- Dynamic notifications will appear here -->
+        </ul>
+    </div>
+
+    <!-- Emotional Layer - You Are Being Taken Care Of -->
+    <div class="emotional-layer hidden">
+        <h2>We Are Here for You</h2>
+        <p>Every step of the way, your vehicle’s health is our priority. We’re not just about diagnostics; we’re about trust and care.</p>
+        <p>Feel confident that you’re in good hands.</p>
+    </div>
+
+    <script>
+        // JavaScript for VIN input and dynamic interactions
+
+        document.getElementById('submit-vin').addEventListener('click', function() {
+            const vinInput = document.getElementById('vin-input').value.trim();
+            if (vinInput.length === 17) {
+                const vehicleProfile = document.getElementById('vehicle-profile');
+                vehicleProfile.classList.remove('hidden');
+                vehicleProfile.innerHTML = `<p>Vehicle profile for VIN: <strong>${vinInput}</strong></p>`;
+                // Show the next section or transition as needed
+            } else {
+                alert('Please enter a valid 17-character VIN.');
+            }
+        });
+
+        document.getElementById('next-step').addEventListener('click', function() {
+            const symptomInput = document.getElementById('symptom-input').value.trim();
+            if (symptomInput) {
+                const vehicleProfileSummary = document.querySelector('.vehicle-profile-summary');
+                vehicleProfileSummary.innerHTML = `<p><strong>Symptom:</strong> ${symptomInput}</p>`;
+                // Proceed to the next step or section
+            } else
+            {
+            alert('Please describe the issue.');
+        }
+    });
+
+    document.getElementById('upload-evidence').addEventListener('click', function() {
+        const evidenceInput = document.getElementById('evidence-input');
+        const file = evidenceInput.files[0];
+        const evidencePreview = document.getElementById('evidence-preview');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                evidencePreview.innerHTML = `<img src="${e.target.result}" alt="Evidence Preview" style="max-width: 100%; border-radius: 5px;">`;
+                evidencePreview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            alert('Please select a file to upload.');
+        }
+    });
+
+    document.querySelectorAll('.select-tier').forEach(button => {
+        button.addEventListener('click', function() {
+            const tier = this.getAttribute('data-tier');
+            alert(`You have selected the ${tier} tier.`);
+            // Further logic for tier selection can be added here
+        });
+    });
+
+    document.getElementById('submit-comments').addEventListener('click', function() {
+        const technicianComments = document.getElementById('technician-comments').value.trim();
+        if (technicianComments) {
+            // Simulate sending technician's input
+            alert('Technician insights submitted!');
+            // Further logic can be added here
+        } else {
+            alert('Please enter your insights.');
+        }
+    });
+
+    function addNotification(message) {
+        const notificationList = document.querySelector('.notification-list');
+        const li = document.createElement('li');
+        li.textContent = message;
+        notificationList.appendChild(li);
+    }
+
+    // Example of adding a notification
+    addNotification('Your vehicle risk profile has been updated.');
+    </script>
+</body>
+</html>
+vinvoyant.zip
+ ├── index.html
+ ├── sections/
+ │    ├── oracle.html
+ │    ├── diagnostic.html
+ │    ├── sensory.html
+ │    ├── tiers.html
+ │    ├── dashboard.html
+ │    └── technician.html
+ ├── styles.css
+ └── app.js
