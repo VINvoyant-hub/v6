@@ -1,0 +1,9 @@
+{
+  "name": "vinvoyantoracle",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev --dir site --port 8888",
+    "build": "echo \"No build step configured (static publish from site/)\""
+  }
+}
+
