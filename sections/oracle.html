@@ -253,6 +253,60 @@
       overflow:hidden;
     }
 
+    .vehicleImageSlot{
+      width:100%;
+      min-height: 240px;
+      border-radius: 16px;
+      border:1px dashed rgba(234,240,255,.16);
+      background:
+        radial-gradient(180px 90px at 50% 55%, rgba(0,212,255,.10), transparent 60%),
+        radial-gradient(180px 90px at 50% 55%, rgba(124,92,255,.10), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.04), transparent);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      overflow:hidden;
+      padding: 18px;
+    }
+
+    .vehicleImageSlot .imageText{
+      color: rgba(234,240,255,.72);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .vehicleImageSlot .imageSub{
+      color: rgba(234,240,255,.45);
+      font-size: 12px;
+    }
+
+    .vehicleArt{
+      width: 100%;
+      height: 240px;
+      object-fit: contain;
+      display: block;
+      border-radius: 14px;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity .35s ease, transform .35s ease;
+    }
+
+    .vehicleArt.ready{
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .provenance{
+      margin-top: 10px;
+      color: rgba(255,255,255,0.50);
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
     .silhouette svg{
       width: 84%;
       max-width: 380px;
@@ -431,22 +485,10 @@
         </div>
 
         <aside class="oracle-right">
-          <div class="silhouette" id="silhouetteBox">
+          <div class="vehicleImageSlot" id="vehicleImageSlot">
             <div class="glow"></div>
-            <!-- Refined luxury sedan silhouette -->
-            <svg viewBox="0 0 900 280" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="vehicle silhouette">
-              <!-- Body -->
-              <path d="M50 180 L70 155 C90 150 160 145 180 145 L240 95 C260 80 300 75 450 75 C600 75 640 80 660 95 L720 145 C740 145 810 150 830 155 L850 180 L850 220 L780 220 A 40 40 0 0 1 700 220 L200 220 A 40 40 0 0 1 120 220 L50 220 Z"
-                    stroke="rgba(124,92,255,.9)" stroke-width="3" stroke-linejoin="round" fill="rgba(20,24,35,.4)"/>
-              <!-- Windows -->
-              <path d="M255 105 L445 85 L445 135 L195 135 Z" stroke="rgba(0,212,255,.6)" stroke-width="2" />
-              <path d="M455 85 L625 105 L685 135 L455 135 Z" stroke="rgba(0,212,255,.6)" stroke-width="2" />
-              <!-- Wheels -->
-              <circle cx="160" cy="220" r="32" stroke="rgba(234,240,255,.5)" stroke-width="3"/>
-              <circle cx="740" cy="220" r="32" stroke="rgba(234,240,255,.5)" stroke-width="3"/>
-              <!-- Ground line -->
-              <path d="M20 252h860" stroke="rgba(234,240,255,.15)" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+            <div class="imageText">Awaiting VIN input…</div>
+            <div class="imageSub">Representative model render will appear here.</div>
           </div>
 
           <div class="data-flicker" id="dataFlicker">
@@ -486,7 +528,7 @@
     const valYear = document.getElementById('valYear');
     const valEngine = document.getElementById('valEngine');
     const valDrive = document.getElementById('valDrive');
-    const silhouetteBox = document.getElementById('silhouetteBox');
+    const vehicleImageSlot = document.getElementById('vehicleImageSlot');
 
     const guide = document.getElementById('guide');
     const guideClose = document.getElementById('guideClose');
@@ -501,18 +543,28 @@
       return true;
     }
 
-    // Fake decode: just to animate “data flicker” while you wire real decode later.
+    // Fake decode: just to animate "data flicker" while you wire real decode later.
     function fakeDecode(v){
       // Deterministic-ish vibe based on characters.
       const yearMap = ["2014","2015","2016","2017","2018","2019","2020","2021","2022","2023","2024"];
       const engines = ["I4 Turbo","V6 Turbo","V8 Biturbo","I6 Turbo","Hybrid","EV"];
       const drives = ["RWD","AWD","FWD","4MATIC","Quattro-ish Energy","Torque Vector AWD"];
+      const makes = ["Audi", "BMW", "Mercedes-Benz", "Lexus", "Porsche", "Tesla", "Genesis"];
+      const models = ["A4", "3 Series", "E-Class", "ES", "Cayenne", "Model S", "G70"];
+      const bodyClasses = ["Sedan", "Sport Utility Vehicle (SUV)", "Coupe", "Hatchback", "Pickup"];
+      const vehicleTypes = ["Passenger Car", "Multipurpose Passenger Vehicle", "Truck"];
       const seed = v.split('').reduce((a,c)=>a + c.charCodeAt(0), 0);
 
       return {
         year: yearMap[seed % yearMap.length],
         engine: engines[(seed >> 2) % engines.length],
-        drive: drives[(seed >> 4) % drives.length]
+        drive: drives[(seed >> 4) % drives.length],
+        // Additional fields for representative render
+        ModelYear: yearMap[seed % yearMap.length],
+        Make: makes[(seed >> 1) % makes.length],
+        Model: models[(seed >> 3) % models.length],
+        BodyClass: bodyClasses[(seed >> 5) % bodyClasses.length],
+        VehicleType: vehicleTypes[(seed >> 6) % vehicleTypes.length]
       };
     }
 
@@ -529,15 +581,56 @@
       guide.classList.remove('show');
     }
 
-    // Super noticeable “deepening” transition
+    // Super noticeable "deepening" transition
     function deepen(){
       oracleCard.classList.remove('deepen');
       void oracleCard.offsetWidth;
       oracleCard.classList.add('deepen');
-      silhouetteBox.querySelector('svg').style.transform = 'scale(1.06) rotate(-1deg)';
-      setTimeout(()=>{
-        silhouetteBox.querySelector('svg').style.transform = '';
-      }, 520);
+      // Animate the vehicle art if present
+      const vehicleArt = vehicleImageSlot.querySelector('.vehicleArt');
+      if(vehicleArt){
+        vehicleArt.style.transform = 'scale(1.02) rotate(-0.5deg)';
+        setTimeout(()=>{
+          vehicleArt.style.transform = '';
+        }, 520);
+      }
+    }
+
+    // Load representative vehicle render from the serverless function
+    async function loadRepresentativeRender(decoded) {
+      if (!vehicleImageSlot) return;
+
+      const year = (decoded?.ModelYear || "").toString().trim();
+      const make = (decoded?.Make || "").toString().trim();
+      const model = (decoded?.Model || "").toString().trim();
+      const bodyClass = (decoded?.BodyClass || "").toString().trim();
+      const vehicleType = (decoded?.VehicleType || "").toString().trim();
+
+      // Calm placeholder while it loads
+      vehicleImageSlot.innerHTML = `
+        <div class="glow"></div>
+        <div class="imageText">Interpreting vehicle form…</div>
+        <div class="imageSub">Representative model render tied to decoded data.</div>
+      `;
+
+      const qs = new URLSearchParams({ year, make, model, bodyClass, vehicleType }).toString();
+      const url = `/.netlify/functions/vehicle-render?${qs}`;
+
+      // Use <img> so SVG caches nicely and is simple
+      const img = new Image();
+      img.alt = "Representative model render (sketch)";
+      img.className = "vehicleArt";
+      img.onload = () => img.classList.add("ready");
+      img.src = url;
+
+      // Provenance line under image (laser-clean)
+      const prov = document.createElement("div");
+      prov.className = "provenance";
+      prov.textContent = "Representative model render · derived from decoded make/model/year · not a photo of your exact vehicle";
+
+      vehicleImageSlot.innerHTML = "";
+      vehicleImageSlot.appendChild(img);
+      vehicleImageSlot.appendChild(prov);
     }
 
     function animateDataLoad(v){
@@ -547,6 +640,9 @@
       valYear.textContent = '…';
       valEngine.textContent = '…';
       valDrive.textContent = '…';
+
+      // Load the representative vehicle render
+      loadRepresentativeRender(decoded);
 
       // Loud, staged reveal
       setTimeout(()=>{ valYear.textContent = decoded.year; }, 380);
